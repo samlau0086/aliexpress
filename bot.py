@@ -6,6 +6,8 @@ from HttpClass import *
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import random
+import time
+
 
 def by_(by):
     by_ = None

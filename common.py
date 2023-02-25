@@ -6,7 +6,7 @@ from bot import Bot
 import time
 from email_class import Email
 import re
-from config import element
+from config import element, configparser
 import os
 
 
@@ -80,5 +80,20 @@ def solve_slider(bot):
 def get_account_info(row):
     row = re.sub('\n', '', row)
     temp = row.split('----')
-    proxy_ = temp[3].split(':')
-    return {"email": temp[0], "password": temp[1], "country": temp[2], "proxy": {"type": proxy_[0], "host": proxy_[1], "port": proxy_[2], "username": proxy_[3], "password": proxy_[4]}}
+    proxy_ = proxy(temp[2])
+    if '%' in proxy_['user']:
+        proxy_['user'] = proxy_['user'] % temp[0]
+    return {"email": temp[0], "password": temp[1], "country": temp[2], "proxy": {"type": proxy_['type'], "host": proxy_['host'], "port": proxy_['port'], "username": proxy_['user'], "password": proxy_['password']}}
+
+
+proxy_config = configparser.RawConfigParser()
+proxy_config.read('proxy.ini', encoding="utf-8")
+
+
+def proxy(country=''):
+    if not country:
+        return None
+    if not proxy_config.has_option(country, 'type'):
+        return None
+    return {'type': proxy_config.get(country, 'type'), 'host': proxy_config.get(country, 'host'), 'port': int(proxy_config.get(country, 'port')), 'user': proxy_config.get(country, 'user'), 'password': proxy_config.get(country, 'password')}
+

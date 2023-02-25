@@ -20,4 +20,3 @@ def element(key='', *args):
         return eval(value % args) if r'%s' in value or r'%d' in value or r'%f' in value else eval(value)
     else:
         return value if r'%s' in value or r'%d' in value or r'%f' in value else eval(value)
-

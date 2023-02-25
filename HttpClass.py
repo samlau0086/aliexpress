@@ -1,6 +1,5 @@
 # coding=utf-8
 import requests
-from commonFunc import *
 from lxml import etree
 import os.path
 import json
@@ -61,7 +60,7 @@ class Http(object):
         if not isDict:#返回字符串形式cookie
             return self.cookies
         #返回dict形式cookie
-        if typeof(self.cookies)=="dict":
+        if type(self.cookies) == dict:
             return self.cookies
         else:
             return cookiestr2dict(self.cookies)

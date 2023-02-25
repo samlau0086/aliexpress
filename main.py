@@ -67,7 +67,6 @@ def solve_slider(bot):
     bot.to_default()
     return bot.element(*elements['滑动提示']).until_hide(3)
 
-
 def get_account_info(row):
     row = re.sub('\n', '', row)
     temp = row.split('----')
@@ -114,7 +113,7 @@ elements = {'注册邮箱': ('//div[contains(@class,"fm-join")]//div[contains(@c
             '注册密码清除按钮': (
             '//div[contains(@class,"fm-join")]//span[contains(@class,"comet-input-password")]//span[contains(@class,"comet-input-clear-icon")]',),
             '注册提交按钮': ('//div[contains(@class,"fm-join")]//button[@type="submit"]',),
-            '注册loading': ('//div[contains(@class,"fm-join")]//div[contains(@class,"fm-loading-overlay")]',),
+            '注册loading': ('//div[contains(@class,"fm-join")]/div[contains(@class,"fm-loading")]',),
             '注册页面标志': ('//*[contains(@class,"login-container")]',),
             '注册标签': ('//div[contains(@class,"comet-tabs-nav")]/div[1]',),
             '注册国家选择框标志': ('//div[contains(@class,"fm-join")]//input',),
@@ -144,11 +143,33 @@ elements = {'注册邮箱': ('//div[contains(@class,"fm-join")]//div[contains(@c
             '注册成功标志': ('//a[contains(@href,"account/index.html")]/div',),
             }
 
+
 def process(email, password, stp='', bot=None):
     bot.maximize()
-
+    time_spent = {'total_spent': time.time(), 'stp_spent': time.time(), 'current': stp}
+    repeats = {}
+    stp_limit = 10
     while 1:
+        if stp not in repeats:
+            repeats[stp] = 0
+        elif repeats[stp] > stp_limit:
+            print('同一骤超过10次执行，销毁窗口重新开始')
+            stp = '失败结束'
+        else:
+            repeats[stp] += 1
         print(stp)
+        if time_spent['current'] != stp:
+            time_spent['stp_spent'] = time.time()
+            time_spent['current'] = stp
+        elif time.time()-time_spent['stp_spent'] > 30:
+            time_spent['stp_spent'] = time.time()
+            time_spent['current'] = stp
+            print('在此步骤卡住超过30秒, 重新开始')
+            bot.refresh()
+            stp = '开始'
+        if time.time()-time_spent['total_spent'] > 240:
+            print('此账号注册超过240秒，销毁窗口重新开始')
+            stp = '失败结束'
         if stp == '开始':
             # enter mark
             if not bot.tab(tab={'loc': 'U', 'val': 'login.aliexpress'}):
@@ -269,6 +290,7 @@ def process(email, password, stp='', bot=None):
             bot.shut()  # 断开selenium
             bot.console.close(None)  # 关闭窗口
             time.sleep(2)
+            bot.console.remove_profile()
             return True
 
         elif stp == '失败结束':

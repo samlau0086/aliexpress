@@ -128,13 +128,13 @@ class BitBrowser(object):
     def close(self, id):
         return self.act('close', id) == '关闭成功'
 
-    def remove_profile(self, id):
+    def remove_profile_(self, id):
         return self.act('delete', id) == '删除成功'
 
     def remove_profile(self, profile_id=None):
         if not profile_id:
             profile_id = self.profile_id
-        return self.remove_profile(profile_id)
+        return self.remove_profile_(profile_id)
 
     def gen_fingerprint(self):
         ip_decide = False
@@ -256,7 +256,7 @@ class BitBrowser(object):
             print(response['data'])
             return False
 
-    def create_profile(self, profile_id='', profile_name='', proxy=0, group_name='', platform="https://login.aliexpress.com/", platformIcon="other"):  # https://beta.openai.com#
+    def create_profile(self, profile_id='', profile_name='', proxy=0, group_name='', platform="https://login.aliexpress.com/", platformIcon="other"):
         if self.group_id:
             group_id = self.group_id
         else:
@@ -345,6 +345,7 @@ class BitBrowser(object):
         result = self.get_profile_list(name=profile_name)
         if result:
             self.profile_name = profile_name
+            self.profile_id = result[0]['id']
             return result[0]
 
         if not proxy:

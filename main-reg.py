@@ -1,13 +1,10 @@
-from common import get_account_info, element, solve_slider, get_email_code, get_bot, time, get_history, os
+from common import time, get_account_info, element, solve_slider, get_email_code, get_bot, os
 
 
 def main():
-    history = get_history()
-    if not os.path.isfile('待注册账号导入.txt'):
-        open('待注册账号导入.txt', 'w')
-        print('未导入注册账号')
-        exit()
-    with open('待注册账号导入.txt', 'r', encoding='utf-8') as f:
+    with open('history.txt', 'r', encoding='utf-8') as f:
+        history = f.read()
+    with open('账号导入.txt', 'r', encoding='utf-8') as f:
         rows = f.readlines()
 
     for row in rows:
@@ -17,29 +14,50 @@ def main():
         else:
             print('开始注册流程')
             print(user_info)
-            process(email=user_info['email'], password=user_info['password'], stp='开始', bot=get_bot(profile_name=user_info['email'], country=user_info['country'], proxy=user_info['proxy']))
+            process(email=user_info['email'], password=user_info['password'], country=user_info['country'], stp='开始', bot=get_bot(profile_name=user_info['email'], country=user_info['country'], proxy=user_info['proxy']))
 
 
 def pick_country(bot, country='United States'):
     for i in range(10):
-        if bot.element(element('注册国家选成功标志', country),).until_here(2):
+        if bot.element(element('注册国家选成功标志', country)).until_here(2):
             break
         if not bot.element(*element('注册国家弹出框')).show():
             bot.element(*element('注册国家弹出框触发按钮')).click()
             time.sleep(0.5)
         if bot.element(*element('注册国家弹出框')).until_show(1):
-            bot.element(element('注册国家弹出框目标国家项', country),).click()
+            bot.element(element('注册国家弹出框目标国家项', country)).click()
         if bot.element(*element('注册国家弹出框为空')).until_show(1):
             print('国家选择框为空')
             return False
-    return bot.element(element('注册国家选择框成功标志', country),).exists()
+    return bot.element(element('注册国家选择框成功标志', country)).exists()
 
 
-def process(email, password, stp='', bot=None):
+def process(email, password, country, stp='', bot=None):
     bot.maximize()
-
+    time_spent = {'total_spent': time.time(), 'stp_spent': time.time(), 'current': stp}
+    repeats = {}
+    stp_limit = 10
     while 1:
+        if stp not in repeats:
+            repeats[stp] = 0
+        elif repeats[stp] > stp_limit:
+            print('同一骤超过10次执行，销毁窗口重新开始')
+            stp = '失败结束'
+        else:
+            repeats[stp] += 1
         print(stp)
+        if time_spent['current'] != stp:
+            time_spent['stp_spent'] = time.time()
+            time_spent['current'] = stp
+        elif time.time()-time_spent['stp_spent'] > 30:
+            time_spent['stp_spent'] = time.time()
+            time_spent['current'] = stp
+            print('在此步骤卡住超过30秒, 重新开始')
+            bot.refresh()
+            stp = '开始'
+        if time.time()-time_spent['total_spent'] > 240:
+            print('此账号注册超过240秒，销毁窗口重新开始')
+            stp = '失败结束'
         if stp == '开始':
             # enter mark
             if not bot.tab(tab={'loc': 'U', 'val': 'login.aliexpress'}):
@@ -65,7 +83,7 @@ def process(email, password, stp='', bot=None):
             if bot.element(*element('注册国家选择框标志')).until_here(3):
                 stp = '选国家'
         elif stp == '选国家':
-            if not pick_country(bot, 'Korea'):
+            if not pick_country(bot, country):
                 bot.refresh()
                 stp = '开始'
                 time.sleep(2)
@@ -160,6 +178,7 @@ def process(email, password, stp='', bot=None):
             bot.shut()  # 断开selenium
             bot.console.close(None)  # 关闭窗口
             time.sleep(2)
+            bot.console.remove_profile()
             return True
 
         elif stp == '失败结束':

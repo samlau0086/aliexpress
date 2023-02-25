@@ -1,3 +1,3 @@
-
-with open(r'aliexpress.txt', 'a', encoding='utf-8') as f:
-    f.write('1\n')
+import re
+url = 'https://login.aliexrepss.com'
+print(re.search('login\.(?=aliexrepss\.)', url, re.I))

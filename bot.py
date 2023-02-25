@@ -318,8 +318,10 @@ class Bot:
                 return False
         return True
 
-    def element(self, selector='', by='XPATH'):
-        return Element(self, selector, by)
+    def element(self, selector='', by=None):
+        if selector[0] == '(' and selector[-1] == ')' and (not by):
+            return Element(self, *eval(selector))
+        return Element(self, selector, by if by else 'XPATH')
 
     def elements(self, selector='', by='XPATH'):
         if by == 'XPATH':

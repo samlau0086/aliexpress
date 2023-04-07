@@ -256,7 +256,7 @@ class BitBrowser(object):
             print(response['data'])
             return False
 
-    def create_profile(self, profile_id='', profile_name='', proxy=0, group_name='', platform="https://campaign.aliexpress.com/wow/gcp/new-user-channel/index?wh_weex=true&wx_navbar_hidden=true&wx_navbar_transparent=true&ignoreNavigationBar=true&wx_statusbar_hidden=true&_immersiveMode=true&preDownLoad=true&tabType=coupon&benefitType=coupon&spm=a2g0o.home.houyi_aipl.0&preGetCoupon=true", platformIcon="other"):
+    def create_profile(self, profile_id='', profile_name='', proxy=0, group_name='', platform="https://www.aliexpress.com/", platformIcon="other"):
         if self.group_id:
             group_id = self.group_id
         else:

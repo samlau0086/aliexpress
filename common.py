@@ -52,11 +52,13 @@ def get_email_code(email, password):
 def solve_slider(bot):
     if bot.element(*element('注册loading')).show():
         print('在loading')
-        if not bot.element(*element('注册loading')).until_hide(10):
-            print('仍在loading，刷新页面')
-            bot.refresh()
-            time.sleep(3)
-            return True
+        if not bot.element(*element('注册loading')).until_hide(5):
+            if not bot.element(*element('滑动>Iframe')).exists():
+                if not bot.element(*element('注册loading')).until_hide(10):
+                    print('仍在loading，刷新页面')
+                    bot.refresh()
+                    time.sleep(3)
+                    return True
     if not bot.element(*element('滑动>Iframe')).exists():
         return True
     bot.to_frame(*element('滑动>Iframe'))
@@ -82,7 +84,9 @@ def get_account_info(row):
     row = re.sub('\n', '', row)
     temp = row.split('----')
     proxy_ = proxy(temp[2])
-    if '%' in proxy_['user']:
+    if proxy_['user'] is None:
+        proxy_['user'] = ''
+    elif '%' in proxy_['user']:
         proxy_['user'] = proxy_['user'] % temp[0]
     return {"email": temp[0], "password": temp[1], "country": temp[2], "proxy": {"type": proxy_['type'], "host": proxy_['host'], "port": proxy_['port'], "username": proxy_['user'], "password": proxy_['password']}}
 

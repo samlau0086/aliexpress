@@ -52,20 +52,21 @@ def process(email, password, country, stp='', bot=None):
         elif time.time()-time_spent['stp_spent'] > 30:
             time_spent['stp_spent'] = time.time()
             time_spent['current'] = stp
-            print('在此步骤卡住超过30秒, 重新开始')
-            bot.refresh()
-            stp = '开始'
+            # print('在此步骤卡住超过30秒, 重新开始')
+            # bot.refresh()
+            # stp = '开始'
         if time.time()-time_spent['total_spent'] > 240:
-            print('此账号注册超过240秒，销毁窗口重新开始')
-            stp = '失败结束'
+            pass
+            # print('此账号注册超过240秒，销毁窗口重新开始')
+            # stp = '失败结束'
         if stp == '开始':
             # enter mark
             if not bot.tab(tab={'loc': 'U', 'val': 'campaign.aliexpress.com'}):
-                bot.get('https://login.aliexpress.com/?return_url=https://campaign.aliexpress.com/wow/gcp/new-user-channel/index?wh_weex=true&wx_navbar_hidden=true&wx_navbar_transparent=true&ignoreNavigationBar=true&wx_statusbar_hidden=true&_immersiveMode=true&preDownLoad=true&tabType=coupon&benefitType=coupon&spm=a2g0o.home.houyi_aipl.0&preGetCoupon=true')
+                bot.get('https://campaign.aliexpress.com/wow/gcp/new-user-channel/index?wh_weex=true&wx_navbar_hidden=true&wx_navbar_transparent=true&ignoreNavigationBar=true&wx_statusbar_hidden=true&_immersiveMode=true&preDownLoad=true&tabType=coupon&benefitType=coupon&spm=a2g0o.home.houyi_aipl.0&preGetCoupon=true')
             # exit mark
             print('仅保留此标签')
             bot.keep()
-            if bot.element(*element('领券页面标志')).until_here(10):
+            if bot.element(*element('领券页面标志')).until_here(30):
                 stp = '领券'
             elif bot.element(*element('注册页面标志')).until_here(10):
                 stp = '切换到注册'
@@ -135,14 +136,18 @@ def process(email, password, country, stp='', bot=None):
                 time.sleep(1.9)
             if bot.element(*element('注册提交按钮')).exists():
                 bot.element(*element('注册提交按钮')).focus()
-                bot.element(*element('注册提交按钮')).press('enter')
+                bot.element(*element('注册提交按钮')).click()
+                # bot.element(*element('注册提交按钮')).press('enter')
                 if bot.element(*element('注册loading')).until_show(3):
-                    if not bot.element(*element('注册loading')).until_hide(20):
-                        print('长时间未消失')
-                        bot.refresh()
-                        time.sleep(3)
-                        stp = '开始'
-                        continue
+                    bot.element(*element('注册loading')).until_hide(5)
+                    if not bot.element(*element('滑动提示')).until_show(3):
+                        if not bot.element(*element('注册loading')).until_hide(20):
+                            # 原来的 //div[contains(@class,"fm-join")]//div[contains(@class,"fm-loading-overlay")]
+                            print('长时间未消失')
+                            bot.refresh()
+                            time.sleep(3)
+                            stp = '开始'
+                            continue
                 time.sleep(3)
             # bot.element(*element('注册错误提示')).until_show(5)
             if bot.element(*element('滑动提示')).until_show(3):
@@ -170,6 +175,9 @@ def process(email, password, country, stp='', bot=None):
             if not bot.element(*element('邮件验证码输入框1')).attr('value'):
                 print('获取验证码')
                 email_code = get_email_code(email, password)
+                if bot.element(*element('注册成功标志')).exists():
+                    stp = '成功结束'
+                    continue
                 if email_code:
                     print('填入验证码', email_code)
                     bot.element(*element('邮件验证码输入框1')).click()
@@ -179,6 +187,7 @@ def process(email, password, country, stp='', bot=None):
                     # bot.element(*element('验证提交按钮')).click()
                     bot.element(*element('验证提交按钮')).focus()
                     bot.element(*element('验证提交按钮')).press('enter')
+                    bot.element(*element('验证提交按钮')).until_gone(25)
 
         elif stp == '成功结束':
             print('将结果写入文件并关闭窗口')

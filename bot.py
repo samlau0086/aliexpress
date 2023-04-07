@@ -139,14 +139,10 @@ class Element:
             return False
 
     def until_hide(self, timeout):
-        try:
-            e = WebDriverWait(self.driver, timeout).until(EC.invisibility_of_element((by_(self.by), self.selector)))
-            if type(e) == bool:
-                return e
-            else:
-                return False
-        except:
-            return True
+        while self.show() and timeout > 0:
+            timeout -= 1
+            time.sleep(1)
+        return not self.show()
 
     def attr(self, name=None, value=None):
         if value is None:

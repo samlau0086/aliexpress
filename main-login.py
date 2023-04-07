@@ -45,17 +45,17 @@ def process(email, password, stp='', bot=None):
 
             if bot.element(*element('登录提交按钮')).exists():
                 # 是否在loading
-
-                bot.element(*element('登录提交按钮')).focus()
-                bot.element(*element('登录提交按钮')).press('enter')
-                if bot.element(*element('登录loading')).until_show(3):
-                    if not bot.element(*element('登录loading')).until_hide(20):
-                        print('长时间未消失')
-                        bot.refresh()
-                        time.sleep(3)
-                        stp = '开始'
-                        continue
-                time.sleep(3)
+                if not bot.element(*element('登录提交按钮loading')).show():
+                    bot.element(*element('登录提交按钮')).focus()
+                    bot.element(*element('登录提交按钮')).press('enter')
+                    if bot.element(*element('登录loading')).until_show(3):
+                        if not bot.element(*element('登录loading')).until_hide(20):
+                            print('长时间未消失')
+                            bot.refresh()
+                            time.sleep(3)
+                            stp = '开始'
+                            continue
+                    time.sleep(3)
 
             if bot.element(*element('登录成功标志')).until_here(5):
                 stp = '成功结束'

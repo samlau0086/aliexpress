@@ -60,13 +60,24 @@ def process(email, password, country, stp='', bot=None):
             stp = '失败结束'
         if stp == '开始':
             # enter mark
-            if not bot.tab(tab={'loc': 'U', 'val': 'login.aliexpress'}):
-                bot.get('https://login.aliexpress.com/')
+            if not bot.tab(tab={'loc': 'U', 'val': 'campaign.aliexpress.com'}):
+                bot.get('https://login.aliexpress.com/?return_url=https://campaign.aliexpress.com/wow/gcp/new-user-channel/index?wh_weex=true&wx_navbar_hidden=true&wx_navbar_transparent=true&ignoreNavigationBar=true&wx_statusbar_hidden=true&_immersiveMode=true&preDownLoad=true&tabType=coupon&benefitType=coupon&spm=a2g0o.home.houyi_aipl.0&preGetCoupon=true')
             # exit mark
             print('仅保留此标签')
             bot.keep()
-            if bot.element(*element('注册页面标志')).until_here(10):
+            if bot.element(*element('领券页面标志')).until_here(10):
+                stp = '领券'
+            elif bot.element(*element('注册页面标志')).until_here(10):
                 stp = '切换到注册'
+        elif stp == '领券':
+            if not bot.element(*element('领券按钮')).exists():
+                bot.refresh()
+                stp = '开始'
+                time.sleep(2)
+                continue
+            bot.element(*element('领券按钮')).click()
+            bot.element(*element('注册页面标志')).until_here(10)
+            stp = '切换到注册'
         elif stp == '切换到注册':
             if not bot.element(*element('注册标签')).exists():
                 bot.refresh()

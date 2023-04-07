@@ -73,6 +73,7 @@ def solve_slider(bot):
             break
         else:
             print('刷新按钮仍存在')
+            bot.element(*element('滑动>刷新提示')).click()
     bot.to_default()
     return bot.element(*element('滑动提示')).until_hide(3)
 

@@ -83,11 +83,20 @@ def solve_slider(bot):
 def get_account_info(row):
     row = re.sub('\n', '', row)
     temp = row.split('----')
-    proxy_ = proxy(temp[2])
-    if proxy_['user'] is None:
-        proxy_['user'] = ''
-    elif '%' in proxy_['user']:
-        proxy_['user'] = proxy_['user'] % temp[0]
+    if len(temp) == 3:
+        proxy_ = proxy(temp[2])
+        if proxy_['user'] is None:
+            proxy_['user'] = ''
+        elif '%' in proxy_['user']:
+            proxy_['user'] = proxy_['user'] % temp[0]
+    elif len(temp) == 4:
+        proxy_list = temp[3].split(':')
+        if len(proxy_list) == 3:
+            return {"email": temp[0], "password": temp[1], "country": temp[2], "proxy": {"type": proxy_list[0], "host":  proxy_list[1], "port":  proxy_list[2], "username": '', "password": ''}}
+        elif len(proxy_list) == 5:
+            return {"email": temp[0], "password": temp[1], "country": temp[2],
+                    "proxy": {"type": proxy_list[0], "host": proxy_list[1], "port": proxy_list[2], "username": proxy_list[3],
+                              "password": proxy_list[4]}}
     return {"email": temp[0], "password": temp[1], "country": temp[2], "proxy": {"type": proxy_['type'], "host": proxy_['host'], "port": proxy_['port'], "username": proxy_['user'], "password": proxy_['password']}}
 
 

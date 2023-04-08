@@ -36,6 +36,7 @@ def get_history(h_type='reg'):
 
 
 def get_email_code(email, password):
+    code = None
     try:
         email_client = Email(email, password)
         if not email_client.login():

@@ -142,6 +142,9 @@ def process(email, password, country, stp='', bot=None):
                     bot.element(*element('注册loading')).until_hide(5)
                     if not bot.element(*element('滑动提示')).until_show(3):
                         if not bot.element(*element('注册loading')).until_hide(20):
+                            if bot.element(*element('邮件验证码输入框1')).exists():
+                                stp = '收邮件验证码'
+                                continue
                             # 原来的 //div[contains(@class,"fm-join")]//div[contains(@class,"fm-loading-overlay")]
                             print('长时间未消失')
                             bot.refresh()
@@ -152,6 +155,11 @@ def process(email, password, country, stp='', bot=None):
             # bot.element(*element('注册错误提示')).until_show(5)
             if bot.element(*element('滑动提示')).until_show(3):
                 if not solve_slider(bot):
+                    if bot.element(*element('注册loading')).exists():
+                        bot.refresh()
+                        bot.element(*element('注册邮箱')).until_show(15)
+                        stp = '切换到注册'
+                        continue
                     print('滑动提示仍在')
                     stp = '失败结束'
                     continue
